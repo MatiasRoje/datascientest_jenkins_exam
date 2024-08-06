@@ -1,6 +1,14 @@
 version: '3.7'
 
 services:
+  root_service:
+    build: ./root-service
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
+    volumes:
+      - ./root-service:/app
+    ports:
+      - 8003:8000
+
   movie_service:
     build: ./movie-service
     command: uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
