@@ -57,7 +57,7 @@ services:
   jenkins:
     image: jenkins/jenkins:alpine3.20-jdk21
     ports:
-      - "8081:8080"  # Change host port to avoid conflict with nginx
+      - "8081:8080" # Change host port to avoid conflict with nginx
     volumes:
       - jenkins_data:/var/jenkins_home
     environment:
