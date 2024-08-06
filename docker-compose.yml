@@ -54,6 +54,19 @@ services:
       - cast_service
       - movie_service
 
+  jenkins:
+    image: jenkins/jenkins:alpine3.20-jdk21
+    ports:
+      - "8081:8080"  # Change host port to avoid conflict with nginx
+    volumes:
+      - jenkins_data:/var/jenkins_home
+    environment:
+      - JAVA_OPTS=-Djenkins.install.runSetupWizard=false
+    depends_on:
+      - movie_service
+      - cast_service
+
 volumes:
   postgres_data_movie:
   postgres_data_cast:
+  jenkins_data:
