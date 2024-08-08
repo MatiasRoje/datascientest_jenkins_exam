@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: root-service
+  namespace: prod
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: root-service
+  template:
+    metadata:
+      labels:
+        app: root-service
+    spec:
+      containers:
+      - name: root-service
+        image: matiasroje/root-service:1.0
+        ports:
+        - containerPort: 8000
+        env:
+        - name: PORT
+          value: "8000"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: root-service
+  namespace: prod
+spec:
+  # type: NodePort
+  type: ClusterIP
+  selector:
+    app: root-service
+  ports:
+  - protocol: TCP
+    port: 8001
+    targetPort: 8000
+    # nodePort: 30001  # Replace with a desired NodePort
+

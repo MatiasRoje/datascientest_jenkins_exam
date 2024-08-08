@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: my-ingress
+  namespace: prod
+spec:
+  rules:
+  - host: nginx.matiasroje-devops.dns-dynamic.net
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: root-service
+            port:
+              number: 8001
+      - path: /api/v1/movies
+        pathType: Prefix
+        backend:
+          service:
+            name: movie-service
+            port:
+              number: 8002
