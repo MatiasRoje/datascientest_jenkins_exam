@@ -1,37 +1,37 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: movie-service
+  name: cast-service
   namespace: prod
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: movie-service
+      app: cast-service
   template:
     metadata:
       labels:
-        app: movie-service
+        app: cast-service
     spec:
       containers:
-      - name: movie-service
-        image: matiasroje/movie-service:1.1
+      - name: cast-service
+        image: matiasroje/cast-service:1.1
         ports:
         - containerPort: 8000
         env:
         - name: DATABASE_URI
-          value: postgresql://movie_db_username:movie_db_password@movie-db/movie_db_dev
+          value: postgresql://cast_db_username:cast_db_password@cast-db:5433/cast_db_dev
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: movie-service
+  name: cast-service
   namespace: prod
 spec:
-  type: ClusterIP  # Using ClusterIP for internal communication
+  type: ClusterIP
   selector:
-    app: movie-service
+    app: cast-service
   ports:
   - protocol: TCP
-    port: 8002
+    port: 8003
     targetPort: 8000
