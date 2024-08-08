@@ -5,7 +5,7 @@ metadata:
   namespace: prod
 spec:
   rules:
-  - host: nginx.matiasroje-devops.dns-dynamic.net
+  - host: jenkins.matiasroje-devops.dns-dynamic.net
     http:
       paths:
       - path: /

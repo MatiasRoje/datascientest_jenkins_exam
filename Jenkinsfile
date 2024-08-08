@@ -1,28 +1,47 @@
-node {
-    def app
+pipeline {
+  environment {
+    imagename = 'matiasroje/root-service'
+    registryCredential = 'dockerhub'
+    dockerImage = ''
+  }
 
-    stage('Clone repository') {
-        checkout scm
+  agent any
+
+  stages {
+    stage('Cloning Git') {
+      steps {
+        git([url: 'https://github.com/MatiasRoje/datascientest_jenkins_exam.git', branch: 'master', credentialsId: 'github'])
+      }
     }
 
-    stage('Build image') {
-       app = docker.build("matiasroje/test")
-    }
-
-    stage('Test image') {
-        app.inside {
-            sh 'echo "Tests would be running here"'
+    stage('Building image') {
+      steps{
+        script {
+          dockerImage = docker.build(imagename, "root-service")
         }
+      }
     }
 
-    stage('Push image') {
-        docker.withRegistry('https://registry.hub.docker.com', 'dockerhub') {
-            app.push("${env.BUILD_NUMBER}")
+    stage('Deploy Image') {
+      steps{
+        script {
+          docker.withRegistry( '', registryCredential ) {
+            dockerImage.push("$BUILD_NUMBER")
+            dockerImage.push('latest')
+          }
         }
+      }
     }
-    
-    stage('Trigger ManifestUpdate') {
-                echo "triggering updatemanifestjob"
-                build job: 'updatemanifest', parameters: [string(name: 'DOCKERTAG', value: env.BUILD_NUMBER)]
-        }
+
+    // stage('Deploy to K8s') {
+    //   steps{
+    //     script {
+    //       sh "sed -i 's,TEST_IMAGE_NAME,harshmanvar/node-web-app:$BUILD_NUMBER,' deployment.yaml"
+    //       sh "cat deployment.yaml"
+    //       sh "kubectl --kubeconfig=/home/ec2-user/config get pods"
+    //       sh "kubectl --kubeconfig=/home/ec2-user/config apply -f deployment.yaml"
+    //     }
+    //   }
+    // }
+  }
 }
