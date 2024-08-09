@@ -1,47 +1,65 @@
 pipeline {
-  environment {
-    imagename = 'matiasroje/root-service'
-    registryCredential = 'dockerhub'
-    dockerImage = ''
-  }
-
-  agent any
-
-  stages {
-    stage('Cloning Git') {
-      steps {
-        git([url: 'https://github.com/MatiasRoje/datascientest_jenkins_exam.git', branch: 'master', credentialsId: 'github'])
-      }
+    environment {
+        imagename = 'matiasroje/root-service'
+        registryCredential = 'dockerhub'
+        dockerImage = ''
     }
 
-    stage('Building image') {
-      steps{
-        script {
-          dockerImage = docker.build(imagename, "root-service")
+    agent any
+
+    stages {
+        stage('Verify Docker') {
+            steps {
+                sh 'docker --version'
+            }
         }
-      }
-    }
 
-    stage('Deploy Image') {
-      steps{
-        script {
-          docker.withRegistry( '', registryCredential ) {
-            dockerImage.push("$BUILD_NUMBER")
-            dockerImage.push('latest')
-          }
+        stage('Cloning Git') {
+            steps {
+                git(
+                    url: 'https://github.com/MatiasRoje/datascientest_jenkins_exam.git',
+                    branch: 'master',
+                    credentialsId: 'github'
+                )
+            }
         }
-      }
-    }
 
-    // stage('Deploy to K8s') {
-    //   steps{
-    //     script {
-    //       sh "sed -i 's,TEST_IMAGE_NAME,harshmanvar/node-web-app:$BUILD_NUMBER,' deployment.yaml"
-    //       sh "cat deployment.yaml"
-    //       sh "kubectl --kubeconfig=/home/ec2-user/config get pods"
-    //       sh "kubectl --kubeconfig=/home/ec2-user/config apply -f deployment.yaml"
-    //     }
-    //   }
-    // }
-  }
+        stage('Building image') {
+            steps {
+                script {
+                    dockerImage = docker.build(imagename, "root-service")
+                }
+            }
+        }
+
+        stage('Test image') {
+            steps {
+                script {
+                    dockerImage.inside {
+                        sh 'echo "Here some testing should be implemented"'
+                    }
+                }
+            }
+        }
+
+        stage('Deploy Image') {
+            steps {
+                script {
+                    docker.withRegistry('', registryCredential) {
+                        dockerImage.push("$BUILD_NUMBER")
+                        dockerImage.push('latest')
+                    }
+                }
+            }
+        }
+
+        stage('Trigger ManifestUpdate') {
+            steps {
+                script {
+                    echo "Triggering the Update Manifest Job"
+                    build job: 'Update Manifest', parameters: [string(name: 'DOCKERTAG', value: env.BUILD_NUMBER)]
+                }
+            }
+        }
+    }
 }
