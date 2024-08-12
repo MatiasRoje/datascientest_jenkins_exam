@@ -1,8 +1,12 @@
 pipeline {
     environment {
-        imagename = 'matiasroje/root-service'
         registryCredential = 'dockerhub'
-        dockerImage = ''
+        rootName = 'matiasroje/root-service'
+        movieName = 'matiasroje/movie-service'
+        castName = 'matiasroje/cast-service'
+        rootImage = ''
+        movieImage = ''
+        castImage = ''
     }
 
     agent any
@@ -24,20 +28,18 @@ pipeline {
             }
         }
 
-        stage('Building image') {
+        stage('Testing code') {
             steps {
-                script {
-                    dockerImage = docker.build(imagename, "root-service")
-                }
+                sh 'echo "Here some testing could be implemented"'
             }
         }
 
-        stage('Test image') {
+        stage('Building images') {
             steps {
                 script {
-                    dockerImage.inside {
-                        sh 'echo "Here some testing should be implemented"'
-                    }
+                    rootImage = docker.build(rootName, "-f root-service/Dockerfile root-service")
+                    movieImage = docker.build(movieName, "-f movie-service/Dockerfile movie-service")
+                    castImage = docker.build(castName, "-f cast-service/Dockerfile cast-service")
                 }
             }
         }
@@ -46,8 +48,12 @@ pipeline {
             steps {
                 script {
                     docker.withRegistry('', registryCredential) {
-                        dockerImage.push("$BUILD_NUMBER")
-                        dockerImage.push('latest')
+                        rootImage.push("$BUILD_NUMBER")
+                        rootImage.push('latest')
+                        movieImage.push("$BUILD_NUMBER")
+                        movieImage.push('latest')
+                        castImage.push("$BUILD_NUMBER")
+                        castImage.push('latest')
                     }
                 }
             }
