@@ -1,6 +1,6 @@
 pipeline {
     environment {
-        name = 'matiasroje/root-service'
+        imagename = 'matiasroje/root-service'
         registryCredential = 'dockerhub'
         dockerImage = ''
     }
