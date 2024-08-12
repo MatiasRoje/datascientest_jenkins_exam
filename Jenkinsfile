@@ -63,7 +63,7 @@ pipeline {
             steps {
                 script {
                     echo "Triggering the Update Manifest Job"
-                    build job: 'Update Manifest', parameters: [string(name: 'DOCKERTAG', value: env.BUILD_NUMBER)]
+                    build job: 'Update Manifest Dev', parameters: [string(name: 'DOCKERTAG', value: env.BUILD_NUMBER)]
                 }
             }
         }
