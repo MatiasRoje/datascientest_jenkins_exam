@@ -1,9 +1,9 @@
 pipeline {
     environment {
         registryCredential = 'dockerhub'
-        rootName = 'matiasroje/root-service'
-        movieName = 'matiasroje/movie-service'
-        castName = 'matiasroje/cast-service'
+        rootName = 'matiasroje/root-service-dev'
+        movieName = 'matiasroje/movie-service-dev'
+        castName = 'matiasroje/cast-service-dev'
         rootImage = ''
         movieImage = ''
         castImage = ''
@@ -22,7 +22,7 @@ pipeline {
             steps {
                 git(
                     url: 'https://github.com/MatiasRoje/datascientest_jenkins_exam.git',
-                    branch: 'master',
+                    branch: 'dev',
                     credentialsId: 'github'
                 )
             }
